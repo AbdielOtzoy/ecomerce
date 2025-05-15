@@ -1,0 +1,26 @@
+[
+  {
+    "id": "8ccafc3b-f881-49e1-ae08-079cba324378",
+    "slug": "electronics",
+    "name": "Electronics",
+    "description": "Avarus aer alter votum molestiae patria degusto velit."
+  },
+  {
+    "id": "8eb67278-79fa-4bca-ad96-8d2a492f9a3f",
+    "slug": "clothing",
+    "name": "Clothing",
+    "description": "Consequuntur sopor claudeo caritas versus deripio despecto doloribus statim tam."
+  },
+  {
+    "id": "18a581e5-5343-4ac2-8fde-7a9355b4ed7d",
+    "slug": "books",
+    "name": "Books",
+    "description": "Congregatio pel defaeco surgo aegrus ullus sumptus."
+  },
+  {
+    "id": "883d1a62-e22d-4794-8527-6fb87fa9788f",
+    "slug": "home",
+    "name": "Home",
+    "description": "Conqueror coruscus vinculum amplus."
+  }
+]
