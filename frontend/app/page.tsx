@@ -3,6 +3,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowRight, Instagram, Facebook, Twitter } from "lucide-react"
+import AuthButtons from "@/components/AuthButtons"
 
 export default function HomePage() {
   return (
@@ -41,9 +42,7 @@ export default function HomePage() {
             </ul>
           </nav>
           <div className="flex items-center space-x-4">
-            <Link href="#" className="text-sm font-medium hover:text-gray-600">
-              ACCOUNT
-            </Link>
+            <AuthButtons  />
             <Link href="#" className="text-sm font-medium hover:text-gray-600">
               CART (0)
             </Link>
@@ -271,7 +270,7 @@ export default function HomePage() {
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-black">
+                  <Link href="" className="hover:text-black">
                     My Account
                   </Link>
                 </li>

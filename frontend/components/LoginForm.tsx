@@ -8,39 +8,52 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { EyeIcon, EyeOffIcon } from "lucide-react"
+import { useAuthStore } from "@/stores/authStore"
+import { useRouter } from "next/navigation"
 import Link from "next/link"
 
 
-export function RegisterForm() {
+export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
+  const [password, setPassword] = useState("")
+  const [email, setEmail] = useState("")
+  const router = useRouter()
+  const { login, user, isAuthenticated } = useAuthStore()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle registration logic here
-    console.log("Registration submitted")
+    // Handle login logic here
+    console.log("Login submitted")
+    console.log("Email:", email)
+    console.log("Password:", password)
+    await login(email, password)
+
+    console.log("User:", user)
+    console.log("Is Authenticated:", isAuthenticated)
+
+    if(user?.isAdmin) {
+      router.push("/dashboard")
+    }
+
   }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <Card className="w-full max-w-sm p-6">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Create an account</CardTitle>
-          <CardDescription className="text-center">Enter your details to get started</CardDescription>
+          <CardTitle className="text-2xl font-bold text-center">Welcome back</CardTitle>
+          <CardDescription className="text-center">Sign in to your account to continue</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input id="name" placeholder="John Doe" required />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="name@example.com" required />
+              <Input id="email" type="email" placeholder="name@example.com" required onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" required />
+                <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" required onChange={(e) => setPassword(e.target.value)} />
                 <Button
                   type="button"
                   variant="ghost"
@@ -59,13 +72,13 @@ export function RegisterForm() {
             </div>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full">
-              Create account
+            <Button type="submit" className="w-full mt-4">
+              Sign in
             </Button>
             <div className="text-center text-sm">
-              Already have an account?{" "}
-              <Link href="/sign-in" className="text-blue-500 hover:underline">
-                Sign in
+              Don&apos;t have an account?{" "}
+              <Link href="/sign-up" className="text-blue-500 hover:underline">
+                Sign up
               </Link>
             </div>
           </CardFooter>
@@ -74,3 +87,4 @@ export function RegisterForm() {
     </div>
   )
 }
+
