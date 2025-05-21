@@ -2,22 +2,52 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { EyeIcon, EyeOffIcon } from "lucide-react"
 import Link from "next/link"
-
+import { useAuthStore } from "@/stores/authStore"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false)
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { register, error,user } = useAuthStore()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if(isSubmitting) {
+      if (error) {
+        toast.error(error)
+        setIsSubmitting(false)
+        return
+      }
+  
+      if (user) {
+        toast.success("Usuario registrado con éxito")
+        router.push("/sign-in")
+        setIsSubmitting(false)
+      }
+    }
+  }, [error, user, router, isSubmitting])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle registration logic here
-    console.log("Registration submitted")
+    setIsSubmitting(true)
+    try {
+      await register(name, email, password)
+    } catch (error) {
+      console.error("Registration error:", error)
+      setIsSubmitting(false)
+    }
+
   }
 
   return (
@@ -31,16 +61,16 @@ export function RegisterForm() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
-              <Input id="name" placeholder="John Doe" required />
+              <Input id="name" placeholder="John Doe" required onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" placeholder="name@example.com" required />
+              <Input id="email" type="email" placeholder="name@example.com" required onChange={(e) => setEmail(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <div className="relative">
-                <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" required />
+                <Input id="password" type={showPassword ? "text" : "password"} placeholder="••••••••" required onChange={(e) => setPassword(e.target.value)} />
                 <Button
                   type="button"
                   variant="ghost"
@@ -58,7 +88,7 @@ export function RegisterForm() {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
+          <CardFooter className="flex flex-col space-y-4 mt-3">
             <Button type="submit" className="w-full">
               Create account
             </Button>

@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -11,30 +11,52 @@ import { EyeIcon, EyeOffIcon } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { toast } from "sonner"
 
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [password, setPassword] = useState("")
   const [email, setEmail] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
-  const { login, user, isAuthenticated } = useAuthStore()
+  const { login, user, error } = useAuthStore()
+
+  // Efecto para manejar la redirección cuando el usuario cambia
+  useEffect(() => {
+    // Solo ejecutar la redirección si acabamos de enviar el formulario
+    if (isSubmitting) {
+      if (error) {
+        toast.error(error)
+        setIsSubmitting(false)
+        return
+      }
+
+      if (user) {
+        if (user.isAdmin) {
+          router.push("/dashboard")
+        } else {
+          router.push("/")
+        }
+        setIsSubmitting(false)
+      }
+    }
+  }, [user, error, isSubmitting, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle login logic here
-    console.log("Login submitted")
-    console.log("Email:", email)
-    console.log("Password:", password)
-    await login(email, password)
+    // Evitar múltiples envíos
+    if (isSubmitting) return
+    setIsSubmitting(true)
 
-    console.log("User:", user)
-    console.log("Is Authenticated:", isAuthenticated)
-
-    if(user?.isAdmin) {
-      router.push("/dashboard")
+    try {
+      await login(email, password)
+      // No hacemos nada aquí, el useEffect se encargará de la redirección
+    } catch (err) {
+      // En caso de que ocurra un error no manejado
+      console.error("Login error:", err)
+      setIsSubmitting(false)
     }
-
   }
 
   return (
@@ -70,10 +92,15 @@ export function LoginForm() {
                 </Button>
               </div>
             </div>
+            
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full mt-4">
-              Sign in
+            <Button 
+              type="submit" 
+              className="w-full mt-4"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Signing in..." : "Sign in"}
             </Button>
             <div className="text-center text-sm">
               Don&apos;t have an account?{" "}
@@ -84,7 +111,7 @@ export function LoginForm() {
           </CardFooter>
         </form>
       </Card>
+      
     </div>
   )
 }
-

@@ -18,9 +18,11 @@ type AuthState = {
   
   // Acciones
   login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   clearError: () => void;
 };
+
 
 // Crear store con persistencia
 export const useAuthStore = create<AuthState>()(
@@ -43,9 +45,47 @@ export const useAuthStore = create<AuthState>()(
             },
             body: JSON.stringify({ email, password }),
           });
+
+          console.log('Response:', response);
+          console.log('Response status:', response.status);
           
           if (!response.ok) {
             throw new Error('Credenciales inválidas');
+          }
+          
+          const data = await response.json();
+          
+          set({
+            user: data.user,
+            token: data.access_token,
+            isAuthenticated: true,
+            isLoading: false,
+          });
+        } catch (error) {
+          set({ 
+            isLoading: false,
+            error: error.message,
+            isAuthenticated: false,
+            user: null,
+            token: null,
+          });
+        }
+      },
+
+      register: async (name: string, email: string, password: string) => {
+        set({ isLoading: true, error: null });
+        
+        try {
+          const response = await fetch('http://localhost:8000/auth/sign-up', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name, email, password }),
+          });
+          
+          if (!response.ok) {
+            throw new Error('Error al registrar el usuario');
           }
           
           const data = await response.json();
