@@ -11,4 +11,8 @@ export default () => ({
     apiKey: process.env.CLOUDINARY_API_KEY,
     apiSecret: process.env.CLOUDINARY_API_SECRET,
   },
+  paypal: {
+    clientId: process.env.PAYPAL_CLIENT_ID,
+    secret: process.env.PAYPAL_SECRET,
+  },
 });

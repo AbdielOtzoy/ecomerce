@@ -1,4 +1,3 @@
-// app/dashboard/layout.tsx
 'use client';
 
 import { useEffect, useState } from "react";
@@ -14,26 +13,22 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const router = useRouter();
-  const { isAuthenticated, user, isLoading } = useAuthStore();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
+  const { isAuthenticated, user, isLoading, hasHydrated } = useAuthStore();
 
-  useEffect(() => {
-    // Verificar autenticación y permisos cuando el estado de autenticación cambie
-    if (!isLoading) {
-      if (!isAuthenticated) {
-        // Redirigir a login si no está autenticado
-        router.push('/sign-in');
-      } else if (!user?.isAdmin) {
-        // Redirigir a una página de acceso denegado si no es admin
-        router.push('/unauthorized');
-      } else {
-        // El usuario está autenticado y es admin
-        setIsAuthorized(true);
-      }
-      setIsChecking(false);
-    }
-  }, [isAuthenticated, user, isLoading, router]);
+useEffect(() => {
+  if (!hasHydrated || isLoading) return;
+
+  console.log('Hydrated - user:', user);
+
+  if (!user?.isAdmin) {
+    router.push('/unauthorized');
+  } else {
+    setIsAuthorized(true);
+  }
+  setIsChecking(false);
+}, [isAuthenticated, user, isLoading, hasHydrated, router]);
 
   // Mostrar un estado de carga mientras se verifica la autenticación
   if (isChecking || isLoading) {

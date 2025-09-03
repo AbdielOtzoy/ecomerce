@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Controller,
   Get,
@@ -187,5 +188,34 @@ export class ProductsController {
     } catch (error) {
       throw new BadRequestException('Error deleting product');
     }
+  }
+
+  @Get('latest/:limit')
+  @ApiOperation({ summary: 'Get latest products' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of latest products',
+    type: [Product],
+  })
+  getLatestProducts(@Param('limit') limit: string) {
+    const getLatestProductsLimit = parseInt(limit, 10) || 7; // Default to 7 if no limit is provided
+    if (isNaN(getLatestProductsLimit) || getLatestProductsLimit <= 0) {
+      throw new BadRequestException('Invalid limit parameter');
+    }
+    return this.productsService.getLatestProducts(getLatestProductsLimit);
+  }
+
+  @Get('categories/:categoryId')
+  @ApiOperation({ summary: 'Get products by category' })
+  @ApiResponse({
+    status: 200,
+    description: 'List of products in the specified category',
+    type: [Product],
+  })
+  getProductsByCategory(@Param('categoryId') categoryId: string) {
+    if (!categoryId) {
+      throw new BadRequestException('Category ID is required');
+    }
+    return this.productsService.getProductsByCategory(categoryId);
   }
 }

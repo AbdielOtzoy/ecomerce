@@ -40,3 +40,13 @@ export interface ProductCreatePayload {
   categories: string[] // category se convierte en array
   imageUrl?: string // Se llenará automáticamente por el backend
 }
+
+export interface Product {
+  id: string
+  name: string
+  category: string
+  description: string
+  price: string
+  stock: number
+  imageUrl: string
+}

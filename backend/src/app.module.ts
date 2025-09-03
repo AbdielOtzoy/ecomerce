@@ -8,6 +8,8 @@ import { SeedModule } from './seed/seed.module';
 import { UploadModule } from './upload/upload.module';
 import configuration from './config/configuration';
 import { validate } from './config/env.validation';
+import { CartModule } from './cart/cart.module';
+import { CheckoutModule } from './checkout/checkout.module';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import { validate } from './config/env.validation';
     ProductsModule,
     SeedModule,
     UploadModule,
+    CartModule,
+    CheckoutModule,
   ],
 })
 export class AppModule {}

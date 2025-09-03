@@ -1,4 +1,3 @@
-// store/authStore.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -15,12 +14,17 @@ type AuthState = {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+
+  hasHydrated: boolean;
+  setHasHydrated: (hydrated: boolean) => void;
   
   // Acciones
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   clearError: () => void;
+
+  
 };
 
 
@@ -119,10 +123,15 @@ export const useAuthStore = create<AuthState>()(
       clearError: () => {
         set({ error: null });
       },
+      hasHydrated: false,
+      setHasHydrated: (hydrated: boolean) => set({ hasHydrated: hydrated }),
     }),
     {
-      name: 'auth-storage', // nombre para localStorage
+      name: 'auth-storage',
       partialize: (state) => ({ user: state.user, token: state.token, isAuthenticated: state.isAuthenticated }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );

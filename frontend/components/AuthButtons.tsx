@@ -4,7 +4,7 @@ import { useAuthStore } from "@/stores/authStore"
 import Link from "next/link"
 
 const AuthButtons = () => {
-    const { user, isAuthenticated, logout } = useAuthStore()
+  const { isAuthenticated, logout } = useAuthStore()
   return (
     <div>
       {isAuthenticated ? (

@@ -1,11 +1,47 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowRight, Instagram, Facebook, Twitter } from "lucide-react"
 import Navbar from "@/components/Navbar"
+import { Product } from "@/lib/validation"
+import { useEffect, useState } from "react"
+import ItemCard from "@/components/ItemCard"
+
+const getLatestProducts = async (): Promise<Product[]> => {
+  try {
+    const response = await fetch(`http://localhost:8000/products/latest/4`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch latest products");
+    }
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching latest products:", error.message);
+    throw error;
+  }
+}
 
 export default function HomePage() {
+  const [latestProducts, setLatestProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    getLatestProducts()
+      .then((data) => {
+        setLatestProducts(data);
+        console.log("Latest products fetched successfully:", data);
+      })
+      .catch((error) => {
+        console.error("Error fetching latest products:", error);
+      });
+  }, []);
   return (
     <div className="flex min-h-screen flex-col">
       {/* Navigation */}
@@ -45,10 +81,10 @@ export default function HomePage() {
           <div className="container mx-auto px-4">
             <h2 className="mb-12 text-center text-3xl font-bold">SHOP BY CATEGORY</h2>
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-              {["Women", "Men", "Accessories", "Footwear"].map((category) => (
+              {["women", "men", "accessories", "footwear"].map((category) => (
                 <div key={category} className="group relative h-80 overflow-hidden rounded-lg">
                   <Image
-                    src={`/placeholder.svg?height=600&width=400&text=${category}`}
+                    src={`/img/products/${category}-category.webp`}
                     alt={`${category} category`}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
@@ -56,9 +92,11 @@ export default function HomePage() {
                   <div className="absolute inset-0 bg-black/20 transition-opacity duration-500 group-hover:bg-black/40" />
                   <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-white">
                     <h3 className="mb-2 text-2xl font-bold">{category.toUpperCase()}</h3>
-                    <Button variant="outline" className="border-white text-white hover:bg-white hover:text-black">
-                      SHOP NOW
-                    </Button>
+                    <Link href={`/collections/${category}`} className="text-sm font-medium hover:underline cursor-pointer">
+                      <Button variant="outline" className="border-white hover:bg-white text-black">
+                        SHOP NOW
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               ))}
@@ -76,27 +114,8 @@ export default function HomePage() {
               </Link>
             </div>
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {[
-                { name: "Oversized Cotton Shirt", price: "$49.99" },
-                { name: "High-Waist Slim Jeans", price: "$59.99" },
-                { name: "Relaxed Fit Blazer", price: "$89.99" },
-                { name: "Knitted Sweater Vest", price: "$45.99" },
-              ].map((product, index) => (
-                <div key={index} className="group">
-                  <div className="relative mb-4 aspect-[3/4] overflow-hidden rounded-lg bg-gray-200">
-                    <Image
-                      src={`/placeholder.svg?height=600&width=450&text=Product ${index + 1}`}
-                      alt={product.name}
-                      fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 translate-y-full bg-black/70 p-4 text-white transition-transform duration-300 group-hover:translate-y-0">
-                      <Button className="w-full">ADD TO CART</Button>
-                    </div>
-                  </div>
-                  <h3 className="mb-1 text-lg font-medium">{product.name}</h3>
-                  <p className="font-medium text-gray-900">{product.price}</p>
-                </div>
+              {latestProducts.map((product) => (
+                <ItemCard key={product.id} product={product} />
               ))}
             </div>
           </div>
@@ -108,7 +127,7 @@ export default function HomePage() {
             <div className="grid grid-cols-1 items-center gap-12 md:grid-cols-2">
               <div className="relative h-[500px] overflow-hidden rounded-lg">
                 <Image
-                  src="/placeholder.svg?height=1000&width=800&text=Our Story"
+                  src="/img/store.webp"
                   alt="Our clothing store story"
                   fill
                   className="object-cover"
@@ -131,24 +150,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Newsletter Section */}
-        <section className="bg-gray-900 py-16 text-white">
-          <div className="container mx-auto px-4 text-center">
-            <h2 className="mb-4 text-3xl font-bold">JOIN OUR COMMUNITY</h2>
-            <p className="mx-auto mb-8 max-w-2xl text-lg text-gray-300">
-              Subscribe to our newsletter to receive updates on new collections, exclusive offers, and styling tips.
-            </p>
-            <form className="mx-auto flex max-w-md flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-              <Input
-                type="email"
-                placeholder="Your email address"
-                className="bg-gray-800 text-white placeholder:text-gray-400"
-                required
-              />
-              <Button className="bg-white text-black hover:bg-gray-100">SUBSCRIBE</Button>
-            </form>
-          </div>
-        </section>
+
       </main>
 
       {/* Footer */}

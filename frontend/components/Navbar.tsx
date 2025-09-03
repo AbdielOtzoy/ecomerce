@@ -2,6 +2,15 @@ import Link from 'next/link'
 import React from 'react'
 import AuthButtons from './AuthButtons'
 import { Button } from './ui/button'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import CartItems from './CartItems'
 
 const Navbar = () => {
   return (
@@ -11,37 +20,43 @@ const Navbar = () => {
           <nav className="hidden md:block">
             <ul className="flex space-x-8">
               <li>
-                <Link href="#" className="text-sm font-medium hover:text-gray-600">
-                  NEW ARRIVALS
-                </Link>
-              </li>
-              <li>
-                <Link href="#" className="text-sm font-medium hover:text-gray-600">
+                <Link href="/collections/women" className="text-sm font-medium hover:text-gray-600">
                   WOMEN
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm font-medium hover:text-gray-600">
+                <Link href="/collections/men" className="text-sm font-medium hover:text-gray-600">
                   MEN
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm font-medium hover:text-gray-600">
+                <Link href="/collections/accessories" className="text-sm font-medium hover:text-gray-600">
                   ACCESSORIES
                 </Link>
               </li>
               <li>
-                <Link href="#" className="text-sm font-medium hover:text-gray-600">
-                  SALE
+                <Link href="/collections/footwear" className="text-sm font-medium hover:text-gray-600">
+                  FOOTWEAR
                 </Link>
               </li>
             </ul>
           </nav>
           <div className="flex items-center space-x-4">
             <AuthButtons  />
-            <Link href="#" className="text-sm font-medium hover:text-gray-600">
-              CART (0)
-            </Link>
+            <Sheet>
+              <SheetTrigger>
+                Cart
+              </SheetTrigger>
+              <SheetContent>
+                <SheetHeader>
+                  <SheetTitle>Your Cart</SheetTitle>
+                  <SheetDescription>
+                    Review your selected items before checkout.
+                  </SheetDescription>
+                </SheetHeader>
+                <CartItems />
+              </SheetContent>
+            </Sheet>
             <Button variant="outline" size="icon" className="md:hidden">
               <span className="sr-only">Toggle menu</span>
               <svg

@@ -1,8 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -13,138 +12,78 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, Search, Plus, Filter, Edit, Trash2, Eye } from "lucide-react"
+import { MoreHorizontal, Search, Filter, Edit, Trash2, Eye } from "lucide-react"
+import { Product } from "@/lib/validation"
+import { toast } from "sonner"
 
-// Sample data
-const products = [
-  {
-    id: "PRD-1234",
-    name: "Oversized Cotton Shirt",
-    category: "Women",
-    price: "$49.99",
-    stock: 124,
-    status: "In Stock",
-    image: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: "PRD-1235",
-    name: "High-Waist Slim Jeans",
-    category: "Women",
-    price: "$59.99",
-    stock: 89,
-    status: "In Stock",
-    image: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: "PRD-1236",
-    name: "Relaxed Fit Blazer",
-    category: "Men",
-    price: "$89.99",
-    stock: 56,
-    status: "In Stock",
-    image: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: "PRD-1237",
-    name: "Knitted Sweater Vest",
-    category: "Women",
-    price: "$45.99",
-    stock: 12,
-    status: "Low Stock",
-    image: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: "PRD-1238",
-    name: "Leather Crossbody Bag",
-    category: "Accessories",
-    price: "$79.99",
-    stock: 34,
-    status: "In Stock",
-    image: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: "PRD-1239",
-    name: "Slim Fit Chino Pants",
-    category: "Men",
-    price: "$54.99",
-    stock: 67,
-    status: "In Stock",
-    image: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: "PRD-1240",
-    name: "Floral Print Dress",
-    category: "Women",
-    price: "$65.99",
-    stock: 23,
-    status: "In Stock",
-    image: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: "PRD-1241",
-    name: "Classic Leather Belt",
-    category: "Accessories",
-    price: "$29.99",
-    stock: 0,
-    status: "Out of Stock",
-    image: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: "PRD-1242",
-    name: "Wool Blend Coat",
-    category: "Women",
-    price: "$129.99",
-    stock: 8,
-    status: "Low Stock",
-    image: "/placeholder.svg?height=40&width=40",
-  },
-  {
-    id: "PRD-1243",
-    name: "Casual Sneakers",
-    category: "Footwear",
-    price: "$69.99",
-    stock: 45,
-    status: "In Stock",
-    image: "/placeholder.svg?height=40&width=40",
-  },
-]
+const getProducts = async (): Promise<Product[]> => {
+  try {
+    const response = await fetch("http://localhost:8000/products", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch products")
+    }
+
+    return response.json()
+  } catch (error) {
+    console.error("Error fetching products:", error)
+    throw error
+  }
+}
 
 export function ProductsTable() {
   const [searchTerm, setSearchTerm] = useState("")
+  const [productsData, setProductsData] = useState<Product[]>([])
+
+  // Fetch products on mount
+  useEffect(() => {
+    getProducts()
+      .then((data) => {
+        console.log("Products fetched successfully:", data) 
+        setProductsData(data)
+      })
+      .catch((error) => {
+        setProductsData([])
+      })
+  }, [])
 
   // Filter products based on search term
-  const filteredProducts = products.filter(
-    (product) =>
+  const filteredProducts = productsData.filter(
+    (product: { name: string; category: string; id: string }) =>
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.id.toLowerCase().includes(searchTerm.toLowerCase()),
+      product.category.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  // Function to render status badge with appropriate color
-  const renderStatus = (status: string, stock: number) => {
-    switch (status) {
-      case "In Stock":
-        return (
-          <Badge variant="outline" className="bg-green-50 text-green-600 hover:bg-green-50">
-            In Stock
-          </Badge>
-        )
-      case "Low Stock":
-        return (
-          <Badge variant="outline" className="bg-amber-50 text-amber-600 hover:bg-amber-50">
-            Low Stock
-          </Badge>
-        )
-      case "Out of Stock":
-        return (
-          <Badge variant="outline" className="bg-red-50 text-red-600 hover:bg-red-50">
-            Out of Stock
-          </Badge>
-        )
-      default:
-        return <Badge variant="outline">{status}</Badge>
+  const deleteProduct = async (id: string) => {
+  try {
+    const response = await fetch(`http://localhost:8000/products/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+
+    if (!response.ok) {
+      toast.error("Failed to delete product")
+      return
     }
+    toast.success("Product deleted successfully")
+
+    // Remove the deleted product from the state
+    setProductsData((prevProducts) =>
+      prevProducts.filter((product) => product.id !== id)
+    )
+
+  } catch (error) {
+    console.error("Error deleting product:", error)
+    throw error
   }
+}
 
   return (
     <div className="space-y-4">
@@ -164,10 +103,6 @@ export function ProductsTable() {
             <Filter className="mr-2 h-4 w-4" />
             Filter
           </Button>
-          <Button size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Product
-          </Button>
         </div>
       </div>
 
@@ -179,7 +114,6 @@ export function ProductsTable() {
               <TableHead>Category</TableHead>
               <TableHead>Price</TableHead>
               <TableHead className="hidden md:table-cell">Stock</TableHead>
-              <TableHead>Status</TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
@@ -190,7 +124,7 @@ export function ProductsTable() {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <img
-                        src={product.image || "/placeholder.svg"}
+                        src={product.imageUrl}
                         alt={product.name}
                         className="h-10 w-10 rounded-md object-cover"
                       />
@@ -203,7 +137,6 @@ export function ProductsTable() {
                   <TableCell>{product.category}</TableCell>
                   <TableCell>{product.price}</TableCell>
                   <TableCell className="hidden md:table-cell">{product.stock}</TableCell>
-                  <TableCell>{renderStatus(product.status, product.stock)}</TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -225,7 +158,8 @@ export function ProductsTable() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-red-600">
                           <Trash2 className="mr-2 h-4 w-4" />
-                          <span>Delete product</span>
+                          <span onClick={() => deleteProduct(product.id)}>
+                            Delete product</span>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

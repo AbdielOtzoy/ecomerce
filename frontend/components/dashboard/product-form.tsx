@@ -17,22 +17,18 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner"
 import { productFormSchema, ProductFormValues } from "@/lib/validation"
 
-// Define the available categories - ajustadas para coincidir con tu backend
+// Define the available categories
 const categories = [
   { label: "Women's Clothing", value: "women" },
   { label: "Men's Clothing", value: "men" },
   { label: "Accessories", value: "accessories" },
   { label: "Footwear", value: "footwear" },
-  { label: "Jewelry", value: "jewelry" },
-  { label: "Bags", value: "bags" },
-  { label: "Electronics", value: "electronics" },
-  { label: "Home & Garden", value: "home" },
 ]
 
 interface ProductImage {
   id: string
   url: string
-  file: File // Ahora siempre tenemos el archivo
+  file: File
   isMain: boolean
 }
 
@@ -66,11 +62,8 @@ export function ProductForm() {
       formData.append('description', data.description)
       formData.append('price', data.price.toString())
       formData.append('stock', data.quantity.toString()) // quantity -> stock
-      
-      // Enviar categorías como array (convertir valor único a array)
-      const categoriesArray = [data.category]
-      formData.append('categories', categoriesArray.join(','))
-      
+      formData.append('category', data.category)
+
       // Agregar la imagen principal si existe
       const mainImage = images.find(img => img.isMain)
       if (mainImage?.file) {

@@ -43,4 +43,18 @@ export class ProductsService {
     }
     return this.productRepository.remove(product);
   }
+
+  getLatestProducts(limit: number = 7) {
+    return this.productRepository.find({
+      order: { createdAt: 'DESC' },
+      take: limit,
+    });
+  }
+
+  getProductsByCategory(category: string) {
+    return this.productRepository.find({
+      where: { category },
+      order: { createdAt: 'DESC' },
+    });
+  }
 }

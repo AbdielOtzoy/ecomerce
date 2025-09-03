@@ -33,9 +33,9 @@ export class Product {
   @ApiProperty({ required: false })
   imageUrl?: string;
 
-  @Column('simple-array', { nullable: true })
-  @ApiProperty({ required: false, type: [String] })
-  categories?: string[];
+  @Column('text')
+  @ApiProperty({ required: false, type: String })
+  category?: string;
 
   @CreateDateColumn()
   @ApiProperty()
