@@ -33,7 +33,7 @@ export class CheckoutService {
         intent: CheckoutPaymentIntent.Capture,
         purchaseUnits: [
           {
-            referenceId: 'PUHF',
+            referenceId: 'PUHF', // Example reference ID
             amount: {
               currencyCode: 'USD',
               value: total.toFixed(2),
@@ -67,8 +67,8 @@ export class CheckoutService {
       const { result, ...httpResponse } =
         await ordersController.createOrder(collect);
       const { statusCode, headers } = httpResponse;
-      console.log('Status Code:', statusCode);
       console.log('Headers:', headers);
+      console.log('Status Code:', statusCode);
       return result;
     } catch (error) {
       console.error('Error creating order:', error);
@@ -90,6 +90,13 @@ export class CheckoutService {
         await ordersController.captureOrder(collect);
       console.log('Order captured successfully:', result);
       console.log('HTTP Response:', httpResponse);
+      if (httpResponse.statusCode !== 201) {
+        throw new Error(
+          `Unexpected status code: ${httpResponse.statusCode}. Expected 201.`,
+        );
+      } else {
+        console.log('Order capture confirmed with status 201.');
+      }
       return result;
     } catch (error) {
       console.error('Error capturing order:', error);

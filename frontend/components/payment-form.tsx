@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
-import { Checkbox } from "@/components/ui/checkbox"
 import Image from "next/image"
 import { useCart } from "@/stores/cartStore"
 import { CartItem } from "@/types"
@@ -19,8 +18,18 @@ import { toast } from "sonner"
 
 export default function PaymentForm() {
   const [isProcessing, setIsProcessing] = useState(false)
+  const [billingInformation, setBillingInformation] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    address: "",
+    city: "",
+    state: "ca", // Set default to a valid option
+    zip: "",
+    country: "us",
+  })
 
-  const { getCart, cart } = useCart();
+  const { getCart, cart, clearCart } = useCart();
     const [products, setProducts] = useState<CartItem[]>([]);
     useEffect(() => {
     getCart();
@@ -48,6 +57,8 @@ export default function PaymentForm() {
       alert("Payment processed successfully!")
     }, 2000)
   }
+
+  const isBillingInfoComplete = Object.values(billingInformation).every(value => value.trim() !== "")
   
 
   return (
@@ -64,36 +75,95 @@ export default function PaymentForm() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-
               {/* Billing Address */}
               <div className="space-y-4">
                 <Label className="text-base font-medium">Billing Address</Label>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" required />
+                    <Input
+                      id="firstName"
+                      required
+                      value={billingInformation.firstName}
+                      onChange={e =>
+                        setBillingInformation(info => ({
+                          ...info,
+                          firstName: e.target.value,
+                        }))
+                      }
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" required />
+                    <Input
+                      id="lastName"
+                      required
+                      value={billingInformation.lastName}
+                      onChange={e =>
+                        setBillingInformation(info => ({
+                          ...info,
+                          lastName: e.target.value,
+                        }))
+                      }
+                    />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email">Email Address</Label>
-                  <Input id="email" type="email" required />
+                  <Input
+                    id="email"
+                    type="email"
+                    required
+                    value={billingInformation.email}
+                    onChange={e =>
+                      setBillingInformation(info => ({
+                        ...info,
+                        email: e.target.value,
+                      }))
+                    }
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="address">Street Address</Label>
-                  <Input id="address" required />
+                  <Input
+                    id="address"
+                    required
+                    value={billingInformation.address}
+                    onChange={e =>
+                      setBillingInformation(info => ({
+                        ...info,
+                        address: e.target.value,
+                      }))
+                    }
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="city">City</Label>
-                    <Input id="city" required />
+                    <Input
+                      id="city"
+                      required
+                      value={billingInformation.city}
+                      onChange={e =>
+                        setBillingInformation(info => ({
+                          ...info,
+                          city: e.target.value,
+                        }))
+                      }
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="state">State</Label>
-                    <Select required>
+                    <Select
+                      required
+                      value={billingInformation.state}
+                      onValueChange={value =>
+                        setBillingInformation(info => ({
+                          ...info,
+                          state: value,
+                        }))
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select state" />
                       </SelectTrigger>
@@ -109,11 +179,30 @@ export default function PaymentForm() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="zip">ZIP Code</Label>
-                    <Input id="zip" required />
+                    <Input
+                      id="zip"
+                      required
+                      value={billingInformation.zip}
+                      onChange={e =>
+                        setBillingInformation(info => ({
+                          ...info,
+                          zip: e.target.value,
+                        }))
+                      }
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="country">Country</Label>
-                    <Select defaultValue="us" required>
+                    <Select
+                      required
+                      value={billingInformation.country}
+                      onValueChange={value =>
+                        setBillingInformation(info => ({
+                          ...info,
+                          country: value,
+                        }))
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -126,21 +215,6 @@ export default function PaymentForm() {
                     </Select>
                   </div>
                 </div>
-              </div>
-
-              {/* Terms and Conditions */}
-              <div className="flex items-center space-x-2">
-                <Checkbox id="terms" required />
-                <Label htmlFor="terms" className="text-sm">
-                  I agree to the{" "}
-                  <a href="#" className="text-primary hover:underline">
-                    Terms of Service
-                  </a>{" "}
-                  and{" "}
-                  <a href="#" className="text-primary hover:underline">
-                    Privacy Policy
-                  </a>
-                </Label>
               </div>
             </form>
           </CardContent>
@@ -205,6 +279,10 @@ export default function PaymentForm() {
                     label: 'paypal',
                   }} 
                   createOrder={async () => {
+                    if(!isBillingInfoComplete) {
+                      toast.error("Please complete all billing information before proceeding.");
+                      return;
+                    }
                     console.log('Creating order...');
                     const order = await fetch('http://localhost:8000/checkout/order', {
                       method: 'POST',
@@ -238,6 +316,33 @@ export default function PaymentForm() {
                     if(captureData.status == "COMPLETED"){
                       // Show success toaster
                       toast.success("Payment completed successfully!");
+
+                      // save the shipping information for the package
+                      try {
+                        const res = await fetch('http://localhost:8000/clothing-order/create', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                          },
+                          body: JSON.stringify({
+                            items: products.map(item => ({
+                              productId: item.productId,
+                              productName: item.productName,
+                              quantity: item.quantity,
+                              price: parseFloat(item.price),
+                            })),
+                            billInfo: billingInformation
+
+                          }),
+                        })
+
+                        const resData = await res.json();
+                        console.log("resData returned: ", resData)
+                      } catch (error) {
+                        console.log("Error, ", error)
+                      }
+                      // clear cart
+                      clearCart();
                     }
                     
                   }}
@@ -251,6 +356,3 @@ export default function PaymentForm() {
     </div>
   )
 }
-// createOrder={() => {}}
-// onCancel={() => {}}
-// onApprove={() => {}}

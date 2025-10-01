@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm/dist/typeorm.module';
 import { CartItem } from './entities/cartitem.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Cart, CartItem])], // Asegúrate de importar tus entidades aquí
+  imports: [TypeOrmModule.forFeature([Cart, CartItem])],
   controllers: [CartController],
   providers: [CartService],
   exports: [CartService],

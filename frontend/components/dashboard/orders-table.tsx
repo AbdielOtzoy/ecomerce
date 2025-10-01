@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -14,111 +14,33 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal, Eye, PackageCheck, XCircle, Search, Download, Filter } from "lucide-react"
-
-// Sample data - more orders for the dedicated orders page
-const orders = [
-  {
-    id: "ORD-7352",
-    customer: "Alex Johnson",
-    email: "alex@example.com",
-    product: "Oversized Cotton Shirt (2), High-Waist Jeans (1)",
-    total: "$159.97",
-    status: "processing",
-    date: "2023-05-19T03:24:00",
-  },
-  {
-    id: "ORD-7351",
-    customer: "Sarah Williams",
-    email: "sarah@example.com",
-    product: "Relaxed Fit Blazer (1)",
-    total: "$89.99",
-    status: "shipped",
-    date: "2023-05-18T14:15:00",
-  },
-  {
-    id: "ORD-7350",
-    customer: "Michael Brown",
-    email: "michael@example.com",
-    product: "Knitted Sweater Vest (1), Leather Crossbody Bag (1)",
-    total: "$125.98",
-    status: "delivered",
-    date: "2023-05-18T09:42:00",
-  },
-  {
-    id: "ORD-7349",
-    customer: "Emily Davis",
-    email: "emily@example.com",
-    product: "High-Waist Slim Jeans (2)",
-    total: "$119.98",
-    status: "cancelled",
-    date: "2023-05-17T16:30:00",
-  },
-  {
-    id: "ORD-7348",
-    customer: "David Wilson",
-    email: "david@example.com",
-    product: "Relaxed Fit Blazer (1), Knitted Sweater Vest (1)",
-    total: "$135.98",
-    status: "processing",
-    date: "2023-05-17T11:20:00",
-  },
-  {
-    id: "ORD-7347",
-    customer: "Jennifer Taylor",
-    email: "jennifer@example.com",
-    product: "Leather Crossbody Bag (1)",
-    total: "$79.99",
-    status: "delivered",
-    date: "2023-05-16T15:45:00",
-  },
-  {
-    id: "ORD-7346",
-    customer: "Robert Martinez",
-    email: "robert@example.com",
-    product: "Oversized Cotton Shirt (1)",
-    total: "$49.99",
-    status: "shipped",
-    date: "2023-05-16T10:30:00",
-  },
-  {
-    id: "ORD-7345",
-    customer: "Lisa Anderson",
-    email: "lisa@example.com",
-    product: "High-Waist Slim Jeans (1), Knitted Sweater Vest (1)",
-    total: "$105.98",
-    status: "processing",
-    date: "2023-05-15T14:20:00",
-  },
-  {
-    id: "ORD-7344",
-    customer: "Daniel Thomas",
-    email: "daniel@example.com",
-    product: "Relaxed Fit Blazer (1)",
-    total: "$89.99",
-    status: "delivered",
-    date: "2023-05-15T09:15:00",
-  },
-  {
-    id: "ORD-7343",
-    customer: "Michelle Garcia",
-    email: "michelle@example.com",
-    product: "Leather Crossbody Bag (1), Oversized Cotton Shirt (1)",
-    total: "$129.98",
-    status: "shipped",
-    date: "2023-05-14T16:40:00",
-  },
-]
+import { ClothingOrder } from "@/types"
 
 export function OrdersTable() {
   const [searchTerm, setSearchTerm] = useState("")
+  const [orders, setOrders] = useState<ClothingOrder[]>([]);
 
-  // Filter orders based on search term
-  const filteredOrders = orders.filter(
-    (order) =>
-      order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.email.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+	useEffect(() => {
+		const fetchOrders = async () => {
+			try {
+				const res = await fetch('http://localhost:8000/clothing-order/all', {
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				});
+				if (res.ok) {
+					const data = await res.json();
+					setOrders(data);
+				} else {
+					console.error('Failed to fetch orders');
+				}
+			} catch (error) {
+				console.error('Error fetching orders:', error);
+			}
+		}
+		fetchOrders();
+	}, []);
 
   // Function to render status badge with appropriate color
   const renderStatus = (status: string) => {
@@ -152,6 +74,82 @@ export function OrdersTable() {
     }
   }
 
+	const exportData = () => {
+  if (!orders || orders.length === 0) {
+    console.warn("No hay órdenes para exportar");
+    return;
+  }
+
+  // Definir las columnas (puedes agregar o quitar según necesites)
+  const headers = [
+    "orderId",
+    "firstName",
+    "lastName",
+    "email",
+    "addressLine1",
+    "addressLine2",
+    "city",
+    "state",
+    "zip",
+    "country",
+    "createdAt",
+    "updatedAt",
+    "itemId",
+    "productId",
+    "productName",
+    "price",
+    "quantity",
+    "itemCreatedAt",
+    "itemUpdatedAt",
+  ];
+
+  // Construir las filas (una por cada item de la orden)
+  const rows = orders.flatMap(order =>
+    order.items.map(item => ({
+      orderId: order.id,
+      firstName: order.firstName,
+      lastName: order.lastName,
+      email: order.email,
+      addressLine1: order.addressLine1,
+      addressLine2: order.addressLine2,
+      city: order.city,
+      state: order.state,
+      zip: order.zip,
+      country: order.country,
+      createdAt: order.createdAt,
+      updatedAt: order.updatedAt,
+      itemId: item.id,
+      productId: item.productId,
+      productName: item.productName,
+      price: item.price,
+      quantity: item.quantity,
+      itemCreatedAt: item.createdAt,
+      itemUpdatedAt: item.updatedAt,
+    }))
+  );
+
+  // Convertir a CSV
+  const csvHeaders = headers.join(",") + "\n";
+  const csvRows = rows
+    .map(row =>
+      headers.map(h => `"${String((row as any)[h] ?? "")}"`).join(",")
+    )
+    .join("\n");
+
+  const csv = csvHeaders + csvRows;
+
+  // Crear blob y forzar descarga
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.setAttribute("download", "orders.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+
   // Format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -181,7 +179,9 @@ export function OrdersTable() {
             <Filter className="mr-2 h-4 w-4" />
             Filter
           </Button>
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm"
+						onClick={exportData}
+					>
             <Download className="mr-2 h-4 w-4" />
             Export
           </Button>
@@ -192,7 +192,7 @@ export function OrdersTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Order</TableHead>
+              <TableHead>OrderId</TableHead>
               <TableHead>Customer</TableHead>
               <TableHead className="hidden md:table-cell">Products</TableHead>
               <TableHead>Total</TableHead>
@@ -202,56 +202,53 @@ export function OrdersTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredOrders.length > 0 ? (
-              filteredOrders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium">{order.id}</TableCell>
-                  <TableCell>
-                    <div>{order.customer}</div>
-                    <div className="text-xs text-muted-foreground">{order.email}</div>
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    <div className="text-sm">{order.product}</div>
-                  </TableCell>
-                  <TableCell>{order.total}</TableCell>
-                  <TableCell>{renderStatus(order.status)}</TableCell>
-                  <TableCell className="hidden sm:table-cell">{formatDate(order.date)}</TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Open menu</span>
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem>
-                          <Eye className="mr-2 h-4 w-4" />
-                          <span>View details</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <PackageCheck className="mr-2 h-4 w-4" />
-                          <span>Update status</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600">
-                          <XCircle className="mr-2 h-4 w-4" />
-                          <span>Cancel order</span>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
-                  No orders found.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
+						{orders.map((order) => (
+						<TableRow key={order.id}>
+							<TableCell className="font-medium">{order.id.slice(0, 8)}</TableCell>
+							<TableCell>
+								{order.firstName} {order.lastName}
+								<div className="text-xs text-muted-foreground">{order.email}</div>
+							</TableCell>
+							<TableCell className="hidden md:table-cell">
+								{order.items.length} {order.items.length === 1 ? "item" : "items"}
+							</TableCell>
+							<TableCell>${order.items.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}</TableCell>
+							<TableCell>{renderStatus("processing")}</TableCell>
+							<TableCell className="hidden sm:table-cell">{formatDate(order.createdAt)}</TableCell>
+							{/* buttons */}
+							<TableCell>
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button variant="ghost" className="h-8 w-8 p-0">
+											<span className="sr-only">Open menu</span>
+											<MoreHorizontal className="h-4 w-4" />
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="end">
+										<DropdownMenuLabel>Actions</DropdownMenuLabel>
+										<DropdownMenuItem
+											onClick={() => { alert(`Marking order ${order.id} as shipped`); }}
+										>
+											<PackageCheck className="mr-2 h-4 w-4" />
+											Mark as Shipped
+										</DropdownMenuItem>
+										<DropdownMenuItem
+											onClick={() => { alert(`Viewing details for order ${order.id}`); }}
+										>	
+											<XCircle className="mr-2 h-4 w-4" />
+											Cancel Order
+										</DropdownMenuItem>
+										<DropdownMenuSeparator />
+										<DropdownMenuItem>
+											<Download className="mr-2 h-4 w-4" />
+											Download
+										</DropdownMenuItem>
+									</DropdownMenuContent>
+								</DropdownMenu>
+							</TableCell>
+						</TableRow>
+						))}
+					</TableBody>
         </Table>
       </div>
     </div>

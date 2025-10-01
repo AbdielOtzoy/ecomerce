@@ -26,7 +26,6 @@ export class CartController {
     const authorization = req.headers.authorization;
     const sessionId = authorization?.split(' ')[1];
 
-    console.log(`entre`);
     return this.cartService.addToCart(
       addToCartDto.productId,
       addToCartDto.productName,
@@ -57,5 +56,10 @@ export class CartController {
   @Delete('items/:id')
   async removeItem(@Param('id') itemId: string) {
     return this.cartService.removeFromCart(itemId);
+  }
+
+  @Post('clear/:cartId')
+  async clearCart(@Param('cartId') cartId: string) {
+    return this.cartService.clearCart(cartId);
   }
 }

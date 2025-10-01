@@ -200,7 +200,6 @@ export const useCartStore = create<CartState>()(
             },
           });
           const data = await res.json();  
-          console.log('Cart fetched:', data);
           set({
             cart: data,
             isLoading: false,
@@ -215,13 +214,35 @@ export const useCartStore = create<CartState>()(
         }
       },
       
-      clearCart: () => {
+      clearCart: async () => {
+        set({ isLoading: true, error: null });
+        try {
+          const res = await fetch(`http://localhost:8000/cart/clear/${get().cart?.id}`, {
+          method: 'POST',
+          });
+          let data = null;
+          const text = await res.text();
+          if (text) {
+            data = JSON.parse(text);
+            console.log('Cart cleared:', data);
+          } else {
+            console.log('Cart cleared: No response body');
+          }
+          set({
+            cart: null,
+            error: null,
+            isLoading: false,
+          });
+          
+      } catch (error) {
+        console.error('Error clearing cart:', error);
         set({
-          cart: null,
-          error: null,
+          isLoading: false,
+          error: error.message,
         });
-      },
-      
+      }
+    },
+
       clearError: () => {
         set({ error: null });
       },

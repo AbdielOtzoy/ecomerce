@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, ShoppingCart, Package, Users, BarChart, Settings, HelpCircle } from "lucide-react"
+import { LayoutDashboard, ShoppingCart, Package, Users, HelpCircle } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -30,17 +30,7 @@ export function DashboardNav() {
       title: "Customers",
       href: "/dashboard/customers",
       icon: Users,
-    },
-    {
-      title: "Analytics",
-      href: "/dashboard/analytics",
-      icon: BarChart,
-    },
-    {
-      title: "Settings",
-      href: "/dashboard/settings",
-      icon: Settings,
-    },
+    }
   ]
 
   return (

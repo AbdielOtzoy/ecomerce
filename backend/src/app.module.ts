@@ -10,6 +10,7 @@ import configuration from './config/configuration';
 import { validate } from './config/env.validation';
 import { CartModule } from './cart/cart.module';
 import { CheckoutModule } from './checkout/checkout.module';
+import { ClothingOrderModule } from './clothing-order/clothing-order.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { CheckoutModule } from './checkout/checkout.module';
     UploadModule,
     CartModule,
     CheckoutModule,
+    ClothingOrderModule,
   ],
 })
 export class AppModule {}

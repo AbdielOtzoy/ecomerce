@@ -104,4 +104,15 @@ export class CartService {
     console.log(`Cart with ID ${cartId} retrieved with itemsaaaaa:`);
     return cart;
   }
+
+  async clearCart(cartId: string): Promise<void> {
+    const cart = await this.cartRepository.findOne({
+      where: { id: cartId },
+      relations: ['items'],
+    });
+    if (!cart) {
+      throw new NotFoundException('Cart not found');
+    }
+    await this.cartItemRepository.remove(cart.items);
+  }
 }
