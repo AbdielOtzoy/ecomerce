@@ -12,7 +12,7 @@ import ItemCard from "@/components/ItemCard"
 
 const getLatestProducts = async (): Promise<Product[]> => {
   try {
-    const response = await fetch(`http://localhost:8000/products/latest/4`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/products/latest/4`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

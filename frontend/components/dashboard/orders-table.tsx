@@ -23,7 +23,7 @@ export function OrdersTable() {
 	useEffect(() => {
 		const fetchOrders = async () => {
 			try {
-				const res = await fetch('http://localhost:8000/clothing-order/all', {
+				const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/clothing-order/all`, {
 					method: 'GET',
 					headers: {
 						'Content-Type': 'application/json',

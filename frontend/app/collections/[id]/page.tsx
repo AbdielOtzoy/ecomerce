@@ -9,7 +9,7 @@ interface RouteParams {
 
 const getProductsByCollectionId = async (id: string):Promise<Product[]> => {
   try {
-    const response = await fetch(`http://localhost:8000/products/categories/${id}`,{
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/products/categories/${id}`,{
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

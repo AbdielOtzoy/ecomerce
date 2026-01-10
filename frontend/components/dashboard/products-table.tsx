@@ -18,7 +18,7 @@ import { toast } from "sonner"
 
 const getProducts = async (): Promise<Product[]> => {
   try {
-    const response = await fetch("http://localhost:8000/products", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/products`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -61,7 +61,7 @@ export function ProductsTable() {
 
   const deleteProduct = async (id: string) => {
   try {
-    const response = await fetch(`http://localhost:8000/products/${id}`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/products/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

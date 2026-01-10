@@ -113,7 +113,7 @@ export function ProductForm() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/products/${productId}/upload-image`,
+        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/products/${productId}/upload-image`,
         {
           method: 'POST',
           body: formData,

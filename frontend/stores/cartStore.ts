@@ -75,7 +75,7 @@ const makeRequest = async (url: string, options: RequestInit = {}) => {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`http://localhost:8000${url}`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}${url}`, {
     ...options,
     method: 'POST',
     headers: {
@@ -107,7 +107,7 @@ export const useCartStore = create<CartState>()(
         set({ isLoading: true, error: null });
         
         try {
-          const res = await fetch(`http://localhost:8000/cart/add`, {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/cart/add`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -167,7 +167,7 @@ export const useCartStore = create<CartState>()(
         set({ isLoading: true, error: null });
         
         try {
-          const res = await fetch(`http://localhost:8000/cart/items/${itemId}`, {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/cart/items/${itemId}`, {
             method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
@@ -193,7 +193,7 @@ export const useCartStore = create<CartState>()(
         set({ isLoading: true, error: null });
         
         try {
-          const res = await fetch(`http://localhost:8000/cart`, {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/cart`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
@@ -217,7 +217,7 @@ export const useCartStore = create<CartState>()(
       clearCart: async () => {
         set({ isLoading: true, error: null });
         try {
-          const res = await fetch(`http://localhost:8000/cart/clear/${get().cart?.id}`, {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/cart/clear/${get().cart?.id}`, {
           method: 'POST',
           });
           let data = null;

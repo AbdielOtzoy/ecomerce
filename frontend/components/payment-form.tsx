@@ -31,21 +31,31 @@ export default function PaymentForm() {
 
   const { getCart, cart, clearCart } = useCart();
     const [products, setProducts] = useState<CartItem[]>([]);
+    
+    // Llamar a getCart solo una vez al montar el componente
     useEffect(() => {
-    getCart();
-    setProducts(  
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (cart?.items ?? []).map((item: any) => ({
-        createdAt: item.createdAt ?? "",
-        id: item.id ?? "",
-        price: item.price ?? "",
-        productId: item.productId ?? "",
-        productName: item.productName ?? "",
-        quantity: item.quantity ?? 0,
-        updatedAt: item.updatedAt ?? "",
-        imageUrl: item.imageUrl ?? "",
-        })));
-    }, [getCart, cart?.items]);
+        getCart();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Array vacío = solo se ejecuta al montar
+    
+    // Actualizar products cada vez que cart.items cambie
+    useEffect(() => {
+        if (cart?.items) {
+            setProducts(  
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                cart.items.map((item: any) => ({
+                    createdAt: item.createdAt ?? "",
+                    id: item.id ?? "",
+                    price: item.price ?? "",
+                    productId: item.productId ?? "",
+                    productName: item.productName ?? "",
+                    quantity: item.quantity ?? 0,
+                    updatedAt: item.updatedAt ?? "",
+                    imageUrl: item.imageUrl ?? "",
+                }))
+            );
+        }
+    }, [cart?.items]); // Solo escuchar cambios en cart.items
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -284,7 +294,7 @@ export default function PaymentForm() {
                       return;
                     }
                     console.log('Creating order...');
-                    const order = await fetch('http://localhost:8000/checkout/order', {
+                    const order = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/checkout/order`, {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
@@ -304,7 +314,7 @@ export default function PaymentForm() {
                   }}
                   onApprove={async (data) => {
                     console.log('Order approved:', data.orderID);
-                    const captureOrder = await fetch(`http://localhost:8000/checkout/capture`, {
+                    const captureOrder = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/checkout/capture`, {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
@@ -319,7 +329,7 @@ export default function PaymentForm() {
 
                       // save the shipping information for the package
                       try {
-                        const res = await fetch('http://localhost:8000/clothing-order/create', {
+                        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/clothing-order/create`, {
                           method: 'POST',
                           headers: {
                             'Content-Type': 'application/json',
@@ -338,6 +348,9 @@ export default function PaymentForm() {
 
                         const resData = await res.json();
                         console.log("resData returned: ", resData)
+
+                        // volver a cargar el carrito
+                        getCart();
                       } catch (error) {
                         console.log("Error, ", error)
                       }

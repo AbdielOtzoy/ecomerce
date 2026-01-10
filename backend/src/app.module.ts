@@ -31,6 +31,8 @@ import { ClothingOrderModule } from './clothing-order/clothing-order.module';
         database: configService.get<string>('database.name'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: process.env.NODE_ENV !== 'production', // Solo en desarrollo
+        ssl:
+          process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
       }),
     }),
     AuthModule,

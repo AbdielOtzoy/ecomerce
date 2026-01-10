@@ -42,7 +42,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         
         try {
-          const response = await fetch('http://localhost:8000/auth/sign-in', {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/sign-in`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -80,7 +80,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
         
         try {
-          const response = await fetch('http://localhost:8000/auth/sign-up', {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/auth/sign-up`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
