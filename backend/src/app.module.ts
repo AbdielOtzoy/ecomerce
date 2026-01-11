@@ -31,38 +31,27 @@ import { ClothingOrderModule } from './clothing-order/clothing-order.module';
         database: configService.get<string>('database.name'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
         synchronize: process.env.NODE_ENV !== 'production',
+
+        // ⭐ SOLUCIÓN: SSL siempre activo en producción
         ssl:
-          configService.get<string>('database.ssl') === 'true'
+          process.env.NODE_ENV === 'production'
             ? { rejectUnauthorized: false }
-            : false,
+            : configService.get<string>('database.ssl') === 'true'
+              ? { rejectUnauthorized: false }
+              : false,
 
-        // ⭐ NUEVOS PARÁMETROS IMPORTANTES:
-
-        // Timeouts más largos para la conexión inicial
         connectTimeoutMS: 30000,
-
-        // Configuración extra para Neon
         extra: {
           connectionTimeoutMillis: 30000,
-          // Evita que las conexiones se cierren prematuramente
           idleTimeoutMillis: 30000,
-          // Máximo de conexiones (importante para plan gratuito de Neon)
           max: 10,
         },
-
-        // Reintentos de conexión
         retryAttempts: 5,
         retryDelay: 3000,
-
-        // Logging para debugging (puedes desactivarlo después)
         logging:
           process.env.NODE_ENV !== 'production' ||
           process.env.DB_LOGGING === 'true',
-
-        // Evita problemas con migraciones automáticas
         migrationsRun: false,
-
-        // Pool de conexiones optimizado para Neon free tier
         poolSize: 5,
       }),
     }),
