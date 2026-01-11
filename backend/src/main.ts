@@ -17,9 +17,25 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
+  // Configuración de CORS más permisiva
+  app.enableCors({
+    origin: process.env.NODE_ENV === 'production' 
+      ? [process.env.CORS_ORIGIN, /\.onrender\.com$/] 
+      : 'http://localhost:3000',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    allowedHeaders: 'Content-Type, Accept, Authorization',
+  });
+
+  // Obtener puerto de las variables de entorno (Render usa PORT)
+  const port = process.env.PORT || 10000;
+
+  await app.listen(port, '0.0.0.0');
+  console.log(`Application is running on: http://0.0.0.0:${port}`);
+
+  // Mover el seed DESPUÉS de que la app esté escuchando
   if (process.env.NODE_ENV !== 'production') {
     try {
-      // Ejecutar seed del administrador
       const seedService = app.get(AdminSeedService);
       await seedService.seed();
       console.log('Administrador creado o verificado correctamente');
@@ -27,19 +43,6 @@ async function bootstrap() {
       console.error('Error al crear el administrador:', error);
     }
   }
-
-  // Configuración de CORS
-  app.enableCors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
-    allowedHeaders: 'Content-Type, Accept',
-  });
-
-  const port = process.env.PORT || 3000;
-
-  await app.listen(port, '0.0.0.0');
-  console.log(`Application is running on: http://0.0.0.0:${port}`);
 }
 
 bootstrap();

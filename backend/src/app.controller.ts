@@ -7,6 +7,16 @@ export class AppController {
 
   @Get('/')
   health() {
-    return { status: 'ok' };
+    return { 
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    };
+  }
+
+  // Endpoint alternativo más simple
+  @Get('/health')
+  healthCheck() {
+    return 'OK';
   }
 }

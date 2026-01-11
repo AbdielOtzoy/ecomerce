@@ -11,8 +11,10 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+      - key: PORT
+        value: 10000
       - key: CORS_ORIGIN
-        value: http://localhost:3000
+        value: https://tu-frontend.onrender.com  # Actualiza esto
       - key: DB_HOST
         sync: false
       - key: DB_PORT
