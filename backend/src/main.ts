@@ -17,13 +17,15 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-  try {
-    // Ejecutar seed del administrador
-    const seedService = app.get(AdminSeedService);
-    await seedService.seed();
-    console.log('Administrador creado o verificado correctamente');
-  } catch (error) {
-    console.error('Error al crear el administrador:', error);
+  if (process.env.NODE_ENV !== 'production') {
+    try {
+      // Ejecutar seed del administrador
+      const seedService = app.get(AdminSeedService);
+      await seedService.seed();
+      console.log('Administrador creado o verificado correctamente');
+    } catch (error) {
+      console.error('Error al crear el administrador:', error);
+    }
   }
 
   // Configuración de CORS
@@ -34,7 +36,8 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Accept',
   });
 
-  const port = process.env.PORT ?? 8000;
+  const port = process.env.PORT || 3000;
+
   await app.listen(port, '0.0.0.0');
   console.log(`Application is running on: http://0.0.0.0:${port}`);
 }
