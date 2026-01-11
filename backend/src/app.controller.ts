@@ -7,10 +7,10 @@ export class AppController {
 
   @Get('/')
   health() {
-    return { 
+    return {
       status: 'ok',
       timestamp: new Date().toISOString(),
-      uptime: process.uptime()
+      uptime: process.uptime(),
     };
   }
 
