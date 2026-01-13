@@ -14,7 +14,7 @@ services:
       - key: PORT
         value: 10000
       - key: CORS_ORIGIN
-        value: https://tu-frontend.onrender.com  # Actualiza esto
+        value: https://ecomerce-two-blond.vercel.app/
       - key: DB_HOST
         sync: false
       - key: DB_PORT
